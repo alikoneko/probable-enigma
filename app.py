@@ -1,27 +1,21 @@
 import re
-from flask import Flask, render_template, request, jsonify
+import json
+from flask import Flask
+from flask_restful import Resource, Api
 
 app = Flask(__name__)
+api = Api(app, prefix='/api')
+class DefangResource(Resource):
+    def get(self, path):
+        defang = path.replace('http', 'hxxp', 1).replace('.', '[.]').replace('//', '||')
+        return {'path': path, "defang": defang}
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+class RefangResource(Resource):
+    def get(self, path):
+        return {'path': path.replace('hxxp', 'http', 1).replace('[.]', '.').replace('||', '//')}
 
-@app.route('/defang/', methods=["GET", "POST"])
-def defang(urls="https://twitter.com/comradeeevee"):
-    urls = re.split('\r?\n?,', request.form['defang'])
-    defanged = []
-    for url in urls:
-        defanged.append(url.replace("http", "hxxp").replace(".", "[.]").replace("/", "/\\").strip())
-    return jsonify(defanged) 
-
-@app.route('/refang/', methods=["GET", "POST"])
-def refang(url="hxxps:/\/\\twitter.com/\comradeeevee"):
-    urls = re.split('\r?\n?,', request.form['refang'])
-    refanged = []
-    for url in urls:
-        refanged.append(url.replace("hxxp", "http").replace("[.]", ".").replace("/\\", "/").strip())
-    return jsonify(refanged)
+api.add_resource(DefangResource, '/defang/<path:path>')
+api.add_resource(RefangResource, '/refang/<path:path>')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
