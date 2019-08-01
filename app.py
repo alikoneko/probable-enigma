@@ -8,11 +8,12 @@ api = Api(app, prefix='/api')
 class DefangResource(Resource):
     def get(self, path):
         defang = path.replace('http', 'hxxp', 1).replace('.', '[.]').replace('//', '||')
-        return {'path': path, "defang": defang}
+        return {'path': path, 'defang': defang}
 
 class RefangResource(Resource):
     def get(self, path):
-        return {'path': path.replace('hxxp', 'http', 1).replace('[.]', '.').replace('||', '//')}
+        refang = path.replace('hxxp', 'http', 1).replace('[.]', '.').replace('||', '//')
+        return {'path': path, 'refang': refang}
 
 api.add_resource(DefangResource, '/defang/<path:path>')
 api.add_resource(RefangResource, '/refang/<path:path>')
